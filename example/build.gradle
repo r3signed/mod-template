@@ -1,0 +1,16 @@
+repositories {
+
+}
+
+dependencies {
+    implementation project(":common")
+    include project(":common")
+}
+
+loom {
+    runs {
+        client {
+            client()
+        }
+    }
+}

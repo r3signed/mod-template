@@ -1,8 +1,8 @@
 package com.r3signed.template.client;
 
-import net.fabricmc.api.ClientModInitializer;
+import com.r3signed.template.ClientModule;
 
-public class ModTemplateClient implements ClientModInitializer {
+public class CommonClientMod implements ClientModule {
 
     @Override
     public void onInitializeClient() {

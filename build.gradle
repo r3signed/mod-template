@@ -1,79 +1,70 @@
 plugins {
-    id "fabric-loom" version "${fabric_loom_version}"
+    id "fabric-loom" version "${fabric_loom_version}" apply false
     id "com.diffplug.spotless" version "${spotless_version}"
+    id "java"
 }
 
-version = project.mod_version
-group = project.gradle_group
-int javaTarget = java_version as Integer
-
-base {
-    archivesName = project.mod_id
+allprojects {
+    version = mod_version
+    group = gradle_group
 }
 
-repositories {
-    maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
-}
+subprojects {
+    apply plugin: "fabric-loom"
+    apply plugin: "java"
 
-dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+    int java_target = java_version as Integer
 
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    repositories {
+        maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
+    }
 
-    modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
+    dependencies {
+        minecraft "com.mojang:minecraft:${minecraft_version}"
+        mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
 
-    testImplementation "net.fabricmc:fabric-loader-junit:${fabric_loader_version}"
-}
+        modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-loom {
-    runs {
-        client {
-            property("devauth.configDir", getRootProject().file(".devauth").absolutePath)
-            client()
+        modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
+
+        testImplementation "net.fabricmc:fabric-loader-junit:${fabric_loader_version}"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    processResources {
+        filteringCharset "UTF-8"
+
+        filesMatching("fabric.mod.json") {
+            expand "version": version,
+                    "minecraft_version": minecraft_version,
+                    "loader_version": fabric_loader_version,
+                    "mod_id": mod_id,
+                    "mod_name": mod_name
         }
+    }
 
-        server {
-            runDir = "server"
-            server()
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        if (java_target >= 10 || JavaVersion.current().isJava10Compatible()) {
+            options.release.set(java_target)
         }
     }
-}
 
-test {
-    useJUnitPlatform()
-}
-
-processResources {
-    filteringCharset "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": version,
-                "minecraft_version": minecraft_version,
-                "loader_version": fabric_loader_version,
-                "mod_id": mod_id,
-                "mod_name": mod_name
+    java {
+        if (JavaVersion.current() < JavaVersion.toVersion(java_target)) {
+            toolchain.languageVersion = JavaLanguageVersion.of(java_target)
+        }
+        withSourcesJar()
     }
-}
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"
-    if (javaTarget >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release.set(javaTarget)
-    }
-}
-
-java {
-    if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
-        toolchain.languageVersion = JavaLanguageVersion.of(javaTarget)
-    }
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${mod_id}" }
+    jar {
+        from("LICENSE") {
+            rename { "${it}_${mod_id}" }
+        }
     }
 }
 
@@ -98,8 +89,9 @@ spotless {
     }
 
     json {
-        target("src/**/*.json")
-        targetExclude("src/main/resources/fabric.mod.json", "src/main/resources/${mod_id}.mixins.json")
+        target("common/**/*.json")
+        target("example/**/*.json")
+        targetExclude("**/fabric.mod.json", "**/${mod_id}.mixins.json")
 
         gson()
                 .indentWithSpaces(2)

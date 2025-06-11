@@ -11,14 +11,12 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.r3signed.template.ModTemplate"
-    ],
-    "client": [
-      "com.r3signed.template.client.ModTemplateClient"
+      "com.r3signed.template.ExampleMod"
     ]
   },
   "mixins": [
-    "mod-template.mixins.json"
+    "common.mixins.json",
+    "example.mixins.json"
   ],
   "depends": {
     "minecraft": "${minecraft_version}",

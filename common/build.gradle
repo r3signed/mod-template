@@ -1,0 +1,17 @@
+repositories {
+
+}
+
+dependencies {
+
+}
+
+loom {
+    runs {
+        clear()
+    }
+}
+
+jar {
+    archiveClassifier = "common"
+}
