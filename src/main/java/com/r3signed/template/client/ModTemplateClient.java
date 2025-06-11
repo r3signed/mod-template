@@ -6,5 +6,6 @@ public class ModTemplateClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // Client initialization
     }
 }

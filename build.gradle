@@ -4,7 +4,7 @@ plugins {
 }
 
 version = project.mod_version
-group = project.maven_group
+group = project.gradle_group
 int javaTarget = java_version as Integer
 
 base {

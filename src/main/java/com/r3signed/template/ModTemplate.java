@@ -6,5 +6,6 @@ public class ModTemplate implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // Mod initialization
     }
 }
